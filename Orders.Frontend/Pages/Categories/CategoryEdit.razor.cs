@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Pages.Countries;
 using Orders.Frontend.Repositories;
+using Orders.Frontend.Shared;
 using Orders.Shared.Entities;
 
 namespace Orders.Frontend.Pages.Categories
@@ -10,7 +11,7 @@ namespace Orders.Frontend.Pages.Categories
     {
         private Category? category;
 
-        private CategoryForm? categoryForm;
+        private FormWithName<Category>? categoryForm;
         [Inject]
         private IRepository Repository { get; set; } = null!;
 

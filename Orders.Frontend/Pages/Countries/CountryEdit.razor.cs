@@ -1,6 +1,7 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Repositories;
+using Orders.Frontend.Shared;
 using Orders.Shared.Entities;
 
 namespace Orders.Frontend.Pages.Countries
@@ -9,7 +10,7 @@ namespace Orders.Frontend.Pages.Countries
     {
         private Country? country;
 
-        private CountryForm? countryForm;
+        private FormWithName<Country>? countryForm;
         [Inject]
         private IRepository repository { get; set; } = null!;
 
@@ -53,7 +54,8 @@ namespace Orders.Frontend.Pages.Countries
                 return;
             }
             Return();
-            var toast = sweetAlertService.Mixin(new SweetAlertOptions {
+            var toast = sweetAlertService.Mixin(new SweetAlertOptions
+            {
                 Toast = true,
                 Position= SweetAlertPosition.BottomEnd,
                 ShowConfirmButton = true,
