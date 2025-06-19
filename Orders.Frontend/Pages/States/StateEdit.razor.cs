@@ -28,28 +28,41 @@ namespace Orders.Frontend.Pages.States
             {
                 if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    NavigationManager.NavigateTo($"/countries/details/{1}");
+                    Return();
                 }
-                else
-                {
-                    var message = await responseHttp.GetErrorMessageAsync();
-                    await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                }
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
             }
-            else
-            {
-                state = responseHttp.Response;
-            }
+            state = responseHttp.Response;
         }
 
         private async Task UpdateAsync()
         {
-
+            var responseHttp = await Repository.PutAsync("api/states", state);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+            Return();
+            var toast = SweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                Title = "Departamento/Estado actualizado correctamente",
+                Icon = SweetAlertIcon.Success,
+                ShowConfirmButton = false,
+                Timer = 3000
+            });
+            await toast.FireAsync();
         }
 
-        private async Task Return()
+        private void Return()
         {
-
+            stateForm!.FormPostedSuccessfully = true;
+            NavigationManager.NavigateTo($"/countries/details/{state!.CountryId}");
         }
     }
 }

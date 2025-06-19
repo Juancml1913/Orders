@@ -2,4 +2,13 @@
 
 <h3>Editar Departamento/Estado</h3>
 
-<FormWithName @ref="stateForm" Label="Departamento/Estado" Model="state" OnValidSubmit="UpdateAsync" ReturnAction="Return" />
+@if (state == null)
+{
+    <Loading/>
+}
+else
+{
+    <FormWithName @ref="stateForm" Label="Departamento/Estado" Model="state" OnValidSubmit="UpdateAsync" ReturnAction="Return" />
+}
+
+
