@@ -7,6 +7,9 @@ namespace Orders.Frontend.Pages.States
 {
     public partial class StateDetails
     {
+        private int totalPages;
+        private int currentPage = 1;
+        private List<City>? cities;
         [Inject]
         NavigationManager NavigationManager { get; set; } = null!;
         [Inject]
@@ -23,7 +26,50 @@ namespace Orders.Frontend.Pages.States
             await LoadAsync();
         }
 
-        private async Task LoadAsync()
+        private async Task LoadAsync(int page = 1)
+        {
+            var ok = await LoadStatesAsync();
+            if (ok)
+            {
+                ok = await LoadCitiesAsync(page);
+                if (ok)
+                {
+                    await LoadPageAsync();
+                }
+            }
+        }
+        private async Task SelectedPage(int page)
+        {
+            currentPage = page;
+            await LoadAsync(page);
+        }
+
+        private async Task LoadPageAsync()
+        {
+            var responseHttp = await Repository.GetAsync<int>($"/api/cities/totalpages?id={StateId}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+            totalPages = responseHttp.Response;
+        }
+
+        private async Task<bool> LoadCitiesAsync(int page)
+        {
+            var responseHttp = await Repository.GetAsync<List<City>>($"/api/cities?id={StateId}&page={page}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return false;
+            }
+            cities = responseHttp.Response;
+            return true;
+        }
+
+        private async Task<bool> LoadStatesAsync()
         {
             var responseHttp = await Repository.GetAsync<State>($"/api/states/{StateId}");
             if (responseHttp.Error)
@@ -31,13 +77,14 @@ namespace Orders.Frontend.Pages.States
                 if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     NavigationManager.NavigateTo($"/countries");
-                    return;
+                    return false;
                 }
                 var message = await responseHttp.GetErrorMessageAsync();
                 await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                return;
+                return false;
             }
             state = responseHttp.Response;
+            return true;
         }
 
         private async Task DeleteAsync(City city)
@@ -59,11 +106,12 @@ namespace Orders.Frontend.Pages.States
             var responseHttp = await Repository.DeleteAsync<City>($"/api/cities/{city.Id}");
             if (responseHttp.Error)
             {
-                if (responseHttp.HttpResponseMessage.StatusCode != System.Net.HttpStatusCode.NotFound) {
+                if (responseHttp.HttpResponseMessage.StatusCode != System.Net.HttpStatusCode.NotFound)
+                {
                     var message = await responseHttp.GetErrorMessageAsync();
                     await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
                     return;
-                }                
+                }
             }
 
             await LoadAsync();
@@ -76,7 +124,7 @@ namespace Orders.Frontend.Pages.States
 
             });
 
-            await toast.FireAsync(message:"Eliminación exitosa.", icon: SweetAlertIcon.Success);
+            await toast.FireAsync(message: "Eliminación exitosa.", icon: SweetAlertIcon.Success);
         }
     }
 }

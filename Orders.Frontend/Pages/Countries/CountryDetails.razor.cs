@@ -9,6 +9,10 @@ namespace Orders.Frontend.Pages.Countries
     public partial class CountryDetails
     {
         private Country? country;
+        private List<State>? states;
+        private int currentPage = 1;
+        private int totalPage;
+
         [Inject]
         private NavigationManager NavigationManager { get; set; } = null!;
         [Inject]
@@ -23,7 +27,49 @@ namespace Orders.Frontend.Pages.Countries
             await LoadAsync();
         }
 
-        private async Task LoadAsync()
+        private async Task LoadAsync(int page = 1)
+        {
+            var ok = await LoadCountryAsync();
+            if (ok)
+            {
+                ok = await LoadStateAsync(page);
+                if (ok)
+                {
+                    await LoadPageAsync();
+                }
+            }
+        }
+
+        private async Task SelectedPage(int page)
+        {
+            currentPage = page;
+            await LoadAsync(page);
+        }
+
+        private async Task LoadPageAsync()
+        {
+            var responseHttp = await Repository.GetAsync<int>($"/api/states/totalpages?id={CountryId}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+            totalPage = responseHttp.Response;
+        }
+        private async Task<bool> LoadStateAsync(int page)
+        {
+            var responseHttp = await Repository.GetAsync<List<State>>($"/api/states?id={CountryId}&page={page}");
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return false;
+            }
+            states = responseHttp.Response;
+            return true;
+        }
+        private async Task<bool> LoadCountryAsync()
         {
             var responseHttp = await Repository.GetAsync<Country>($"/api/countries/{CountryId}");
             if (responseHttp.Error)
@@ -31,13 +77,14 @@ namespace Orders.Frontend.Pages.Countries
                 if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
                     NavigationManager.NavigateTo("/countries");
-                    return;
+                    return false;
                 }
                 var message = await responseHttp.GetErrorMessageAsync();
                 await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
-                return;
+                return false;
             }
             country = responseHttp.Response;
+            return true;
         }
 
         private async Task DeteleAsync(State state)
