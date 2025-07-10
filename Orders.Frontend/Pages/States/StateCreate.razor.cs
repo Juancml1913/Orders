@@ -1,4 +1,5 @@
 ﻿using CurrieTechnologies.Razor.SweetAlert2;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using Orders.Frontend.Repositories;
@@ -8,6 +9,7 @@ using System.Diagnostics.Metrics;
 
 namespace Orders.Frontend.Pages.States
 {
+    [Authorize(Roles = "Admin")]
     public partial class StateCreate
     {
         public FormWithName<State>? stateForm;
