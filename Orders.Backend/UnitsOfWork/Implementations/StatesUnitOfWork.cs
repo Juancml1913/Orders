@@ -28,6 +28,12 @@ namespace Orders.Backend.UnitsOfWork.Implementations
         {
             return await _statesRepository.GetAsync(pagination);
         }
+
+        public async Task<IEnumerable<State>> GetComboAsync(int countryId)
+        {
+            return await _statesRepository.GetComboAsync(countryId);
+        }
+
         public override async Task<ActionResponse<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
             return await _statesRepository.GetTotalPagesAsync(pagination);

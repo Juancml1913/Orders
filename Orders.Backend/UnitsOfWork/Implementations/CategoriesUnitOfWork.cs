@@ -20,6 +20,11 @@ namespace Orders.Backend.UnitsOfWork.Implementations
             return await _categoriesRepository.GetAsync(pagination);
         }
 
+        public async Task<IEnumerable<Category>> GetComboAsync()
+        {
+            return await _categoriesRepository.GetComboAsync();
+        }
+
         public override async Task<ActionResponse<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
             return await _categoriesRepository.GetTotalPagesAsync(pagination);

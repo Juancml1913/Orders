@@ -30,6 +30,12 @@ namespace Orders.Backend.UnitsOfWork.Implementations
         {
             return await _countriesRepository.GetAsync(pagination);
         }
+
+        public async Task<IEnumerable<Country>> GetComboAsync()
+        {
+            return await _countriesRepository.GetComboAsync();
+        }
+
         public override async Task<ActionResponse<int>> GetTotalPagesAsync(PaginationDTO pagination)
         {
             return await _countriesRepository.GetTotalPagesAsync(pagination);

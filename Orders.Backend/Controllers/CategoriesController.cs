@@ -41,5 +41,13 @@ namespace Orders.Backend.Controllers
             }
             return BadRequest(response.Message);
         }
+
+        [AllowAnonymous]
+        [HttpGet("combo")]
+        public async Task<IActionResult> GetComboAsync()
+        {
+            var response = await _categoriesUnitOfWork.GetComboAsync();
+            return Ok(response);
+        }
     }
 }

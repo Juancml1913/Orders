@@ -1,0 +1,24 @@
+﻿@page "/login"
+
+<h3>Iniciar sesión</h3>
+
+<EditForm Model="loginDTO" OnValidSubmit="SignInAsync">
+    <DataAnnotationsValidator/>
+    <div class="row">
+        <div class="col-4">
+            <div class="mb-3">
+                <label for="email">Email: </label>
+                <InputText id="email" class="form-control" @bind-Value="loginDTO.Email" />
+                <ValidationMessage For="@(() => loginDTO.Email)" />
+            </div>
+            <div class="mb-3">
+                <label for="password">Contraseña: </label>
+                <InputText type="password" id="password" class="form-control" @bind-Value="loginDTO.Password" />
+                <ValidationMessage For="@(() => loginDTO.Password)" />
+            </div>
+            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        </div>
+    </div>
+</EditForm>
+
+
