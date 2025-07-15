@@ -1,42 +1,53 @@
 ﻿@page "/countries"
 
-<h3>Paises</h3>
+<div class="card">
+    <div class="card-header">
+        <span>
+            <i class="bi bi-globe-americas"/> Países
+            <a class="btn btn-primary btn-sm float-end" href="/countries/create">
+                <i class="bi bi-plus-square"/> Nuevo país</a>
+        </span>
+    </div>
+    <div class="card-body">
+        <GenericList MyList="Countries">
+            <Body>
+                <div class="mb-2" style="display:flex; flex-wrap: wrap; align-items: center;">
+                    <div><input style="width: 400px" type="text" class="form-control" id="titulo" placeholder="Buscar país..." @bind-value="Filter" /></div>
+                    <div class="mx-1">
+                        <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync"><i class="bi bi-funnel" /> Filtrar</button>
+                        <button type="button" class="btn btn-outline-danger mx-1" @onclick="CleanFilterAsync"><i class="bi bi-x-circle" /> Limpiar</button>
+                    </div>
+                    
+                </div>
+                <Pagination CurrentPage="currentPage" TotalPage="totalPage" SelectedPage="SelectedPageAsync" />
+                
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>País</th>
+                            <th style="width:210px">Departamentos / Estados</th>
+                            <th style="width:168px"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var country in Countries!)
+                        {
+                            <tr>
+                                <td><a href="/countries/details/@country.Id">@country.Name</a></td>
+                                <td>@country.StatesNumber</td>
+                                <td>
+                                    <a href="/countries/edit/@country.Id" class="btn btn-warning btn-sm"><i class="bi bi-pencil"/> Editar</a>
+                                    <button @onclick=@(()=> DeleteAsync(country)) class="btn btn-danger btn-sm"><i class="bi bi-trash" /> Borrar</button>
+                                </td>
+                            </tr>
+                        }
 
-<div class="mb-3">
-    <a class="btn btn-primary" href="/countries/create">Nuevo país</a>
+                    </tbody>
+                </table>
+            </Body>
+        </GenericList>
+    </div>
 </div>
 
-<GenericList MyList="Countries">
-    <Body>
-        <Pagination CurrentPage="currentPage" TotalPage="totalPage" SelectedPage="SelectedPageAsync"/>
-        <div class="mb-2" style="display:flex; flex-wrap: wrap; align-items: center;">
-            <input style="width: 400px" type="text" class="form-control" id="titulo" placeholder="Buscar país..." @bind-value="Filter"/>
-            <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync">Filtrar</button>
-            <button type="button" class="btn btn-outline-danger mx-1" @onclick="CleanFilterAsync">Limpiar</button>
-        </div>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>País</th>
-                    <th style="width:210px">Departamentos / Estados</th>
-                    <th style="width:210px"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var country in Countries!)
-                {
-                    <tr>
-                        <td>@country.Name</td>
-                        <td>@country.StatesNumber</td>
-                        <td>
-                            <a href="/countries/edit/@country.Id" class="btn btn-warning btn-sm">Editar</a>
-                            <a href="/countries/details/@country.Id" class="btn btn-info btn-sm">Detalles</a>
-                            <button @onclick=@(()=> DeleteAsync(country)) class="btn btn-danger btn-sm">Borrar</button>
-                        </td>
-                    </tr>
-                }
 
-            </tbody>
-        </table>
-    </Body>
-</GenericList>
+

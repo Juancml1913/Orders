@@ -1,24 +1,31 @@
 ﻿@page "/login"
-
-<h3>Iniciar sesión</h3>
-
-<EditForm Model="loginDTO" OnValidSubmit="SignInAsync">
-    <DataAnnotationsValidator/>
-    <div class="row">
-        <div class="col-4">
-            <div class="mb-3">
-                <label for="email">Email: </label>
-                <InputText id="email" class="form-control" @bind-Value="loginDTO.Email" />
-                <ValidationMessage For="@(() => loginDTO.Email)" />
+<div class="row mt-5">
+    <div class="col-md-4 offset-md-4">
+        <EditForm Model="loginDTO" OnValidSubmit="SignInAsync">
+            <DataAnnotationsValidator />
+            <div class="card bg-light">
+                <div class="card-header justify-content-center">
+                    <span>
+                        <i class="bi bi-account-login"/> Iniciar Sesión
+                        <button class="btn btn-sm btn-primary float-end" type="submit"><i class="bi bi-box-arrow-right"/> Iniciar Sesión</button>
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="email">Email: </label>
+                        <InputText id="email" class="form-control" @bind-Value="loginDTO.Email" />
+                        <ValidationMessage For="@(() => loginDTO.Email)" />
+                    </div>
+                    <div class="mb-3">
+                        <label for="password">Contraseña: </label>
+                        <InputText type="password" id="password" class="form-control" @bind-Value="loginDTO.Password" />
+                        <ValidationMessage For="@(() => loginDTO.Password)" />
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label for="password">Contraseña: </label>
-                <InputText type="password" id="password" class="form-control" @bind-Value="loginDTO.Password" />
-                <ValidationMessage For="@(() => loginDTO.Password)" />
-            </div>
-            <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-        </div>
+        </EditForm>
     </div>
-</EditForm>
+</div>
+
 
 
