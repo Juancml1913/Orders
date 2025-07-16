@@ -16,6 +16,7 @@ namespace Orders.Frontend.Pages.Auth
         private List<State>? states;
         private List<City>? cities;
         private bool loading;
+        private string? imageUrl;
         [Inject] private NavigationManager NavigationManager { get; set; } = null!;
         [Inject] private IRepository Repository { get; set; } = null!;
         [Inject] private SweetAlertService SweetAlertService { get; set; } = null!;
@@ -24,6 +25,13 @@ namespace Orders.Frontend.Pages.Auth
         protected async override Task OnInitializedAsync()
         {
             await LoadCountriesAsync();
+        }
+
+        private void ImageSelected(string imageBase64)
+        {
+            //userDTO.Photo = $"data:image/jpg;base64,{imageBase64}";
+            userDTO.Photo = imageBase64;
+            imageUrl = null;
         }
 
         private async Task LoadCountriesAsync()
@@ -86,7 +94,10 @@ namespace Orders.Frontend.Pages.Auth
             userDTO.UserName = userDTO.Email;
             userDTO.UserType = UserType.User;
             loading = true;
+
             var responseHttp = await Repository.PostAsync<UserDTO, TokenDTO>("api/accounts/createuser", userDTO);
+
+
             loading = false;
             if (responseHttp.Error)
             {

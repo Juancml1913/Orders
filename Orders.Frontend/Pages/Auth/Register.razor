@@ -109,13 +109,7 @@ else
                                 <ValidationMessage For="@(() => userDTO.CityId)" />
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label>Foto: </label>
-                            <div>
-                                <InputText class="form-control" @bind-Value="@userDTO.Photo" />
-                                <ValidationMessage For="@(() => userDTO.Photo)" />
-                            </div>
-                        </div>
+                        
                         <div class="mb-3">
                             <label>Contraseña: </label>
                             <div>
@@ -129,6 +123,9 @@ else
                                 <InputText type="password" class="form-control" @bind-Value="@userDTO.PasswordConfirm" />
                                 <ValidationMessage For="@(() => userDTO.PasswordConfirm)" />
                             </div>
+                        </div>
+                        <div class="mb-3">
+                            <InputImg Label="Foto" ImageURL="@imageUrl" ImageSelected="ImageSelected"/>
                         </div>
                     </div>
                 </div>
