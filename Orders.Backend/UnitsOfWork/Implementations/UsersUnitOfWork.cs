@@ -24,6 +24,11 @@ namespace Orders.Backend.UnitsOfWork.Implementations
             await _usersRepository.AddUserToRoleAsync(user, roleName);
         }
 
+        public async Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword)
+        {
+            return await _usersRepository.ChangePasswordAsync(user, currentPassword, newPassword);
+        }
+
         public async Task CheckRoleAsync(string roleName)
         {
             await _usersRepository.CheckRoleAsync(roleName);
@@ -34,19 +39,29 @@ namespace Orders.Backend.UnitsOfWork.Implementations
             return await _usersRepository.GetUserAsync(email);
         }
 
-        public Task<bool> IsUserInRoleAsync(User user, string roleName)
+        public async Task<User> GetUserAsync(Guid userId)
         {
-            return _usersRepository.IsUserInRoleAsync(user, roleName);
+            return await _usersRepository.GetUserAsync(userId);
         }
 
-        public Task<SignInResult> LoginAsync(LoginDTO login)
+        public async Task<bool> IsUserInRoleAsync(User user, string roleName)
         {
-            return _usersRepository.LoginAsync(login);
+            return await _usersRepository.IsUserInRoleAsync(user, roleName);
+        }
+
+        public async Task<SignInResult> LoginAsync(LoginDTO login)
+        {
+            return await _usersRepository.LoginAsync(login);
         }
 
         public async Task LogoutAsync()
         {
             await _usersRepository.LogoutAsync();
+        }
+
+        public async Task<IdentityResult> UpdateUserAsync(User user)
+        {
+            return await _usersRepository.UpdateUserAsync(user);
         }
     }
 }

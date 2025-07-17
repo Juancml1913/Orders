@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Orders.Backend.Helpers;
 using Orders.Backend.UnitsOfWork.Interfaces;
@@ -25,6 +27,51 @@ namespace Orders.Backend.Controllers
             _configuration=configuration;
             _fileStorage=fileStorage;
             _container = "users";
+        }
+        [HttpPut]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> PutAsync(User user)
+        {
+            try
+            {
+                var currentUser = await _usersUnitOfWork.GetUserAsync(User.Identity!.Name!);
+                if (currentUser == null)
+                {
+                    return NotFound("Usuario no encontrado.");
+                }
+                if (!string.IsNullOrEmpty(user.Photo))
+                {
+                    var photoUser = Convert.FromBase64String(user.Photo);
+                    user.Photo = await _fileStorage.SaveFileAsync(photoUser, ".jpg", _container);
+                }
+                currentUser.Document = user.Document;
+                currentUser.FirstName = user.FirstName;
+                currentUser.LastName = user.LastName;
+                currentUser.Address = user.Address;
+                currentUser.CityId = user.CityId;
+                currentUser.PhoneNumber = user.PhoneNumber;
+                currentUser.Photo = !string.IsNullOrEmpty(user.Photo) && user.Photo != currentUser.Photo ?
+                    user.Photo : currentUser.Photo;
+
+                var result = await _usersUnitOfWork.UpdateUserAsync(currentUser);
+                if (result.Succeeded)
+                {
+                    return NoContent();
+                }
+                return BadRequest(result.Errors.FirstOrDefault());
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error al actualizar el usuario: {ex.Message}");
+            }
+        }
+
+        [HttpGet]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetAsync()
+        {
+            return Ok(await _usersUnitOfWork.GetUserAsync(User.Identity!.Name!));
         }
 
         [HttpPost("CreateUser")]
