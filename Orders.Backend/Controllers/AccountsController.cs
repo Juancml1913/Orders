@@ -6,6 +6,8 @@ using Orders.Backend.Helpers;
 using Orders.Backend.UnitsOfWork.Interfaces;
 using Orders.Shared.DTOs;
 using Orders.Shared.Entities;
+using Orders.Shared.Responses;
+using Org.BouncyCastle.Bcpg;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,14 +21,90 @@ namespace Orders.Backend.Controllers
         private readonly IUsersUnitOfWork _usersUnitOfWork;
         private readonly IConfiguration _configuration;
         private readonly IFileStorage _fileStorage;
+        private readonly IMailHelper _mailHelper;
         private readonly string _container;
 
-        public AccountsController(IUsersUnitOfWork usersUnitOfWork, IConfiguration configuration, IFileStorage fileStorage)
+        public AccountsController(IUsersUnitOfWork usersUnitOfWork, IConfiguration configuration, IFileStorage fileStorage, IMailHelper mailHelper)
         {
             _usersUnitOfWork=usersUnitOfWork;
             _configuration=configuration;
             _fileStorage=fileStorage;
+            _mailHelper=mailHelper;
             _container = "users";
+        }
+        [HttpPost("RecoverPassword")]
+        public async Task<IActionResult> RecoverPasswordAsync([FromBody] EmailDTO model)
+        {
+            var user = await _usersUnitOfWork.GetUserAsync(model.Email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var myToken = await _usersUnitOfWork.GeneratePasswordResetTokenAsync(user);
+            var tokenLink = Url.Action("ResetPassword", "accounts", new
+            {
+                userid = user.Id,
+                token = myToken
+            }, HttpContext.Request.Scheme, _configuration["UrlFrontend"]);
+            var response = _mailHelper.SendMail(user.FullName, user.Email!,
+                $"Orders - Recuperación de contraseña",
+                $"<h1>Orders - Recuperación de contraseña</h1>" +
+                $"<p>Para recuperar la contraseña, por favor hacer clic 'Recuperar contraseña':</p>" +
+                $"<b><a href={tokenLink}>Recuperar contraseña</a></b>");
+            if (response.WasSuccess)
+            {
+                return NoContent();
+            }
+            return BadRequest(response.Message);
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPasswordAsync([FromBody] ResetPasswordDTO model)
+        {
+            var user = await _usersUnitOfWork.GetUserAsync(model.Email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var result = await _usersUnitOfWork.ResetPasswordAsync(user, model.Token, model.Password);
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors.FirstOrDefault()!.Description);
+        }
+
+        [HttpPost("ResendToken")]
+        public async Task<IActionResult> ResendTokenAsync([FromBody] EmailDTO model)
+        {
+            var user = await _usersUnitOfWork.GetUserAsync(model.Email);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var response = await SendConfirmationEmailAsync(user);
+            if (response.WasSuccess)
+            {
+                return NoContent();
+            }
+            return BadRequest(response.Message);
+        }
+
+        [HttpGet("ConfirmEmail")]
+        public async Task<IActionResult> ConfirmEmailAsync(string userid, string token)
+        {
+            token = token.Replace(" ", "+");
+            var user = await _usersUnitOfWork.GetUserAsync(new Guid(userid));
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var result = await _usersUnitOfWork.ConfirmEmailAsync(user, token);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result.Errors.FirstOrDefault());
+            }
+            return NoContent();
         }
         [HttpPut]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -56,7 +134,7 @@ namespace Orders.Backend.Controllers
                 var result = await _usersUnitOfWork.UpdateUserAsync(currentUser);
                 if (result.Succeeded)
                 {
-                    return NoContent();
+                    return Ok(BuildToken(user));
                 }
                 return BadRequest(result.Errors.FirstOrDefault());
 
@@ -87,7 +165,11 @@ namespace Orders.Backend.Controllers
             if (result.Succeeded)
             {
                 await _usersUnitOfWork.AddUserToRoleAsync(user, user.UserType.ToString());
-                return Ok(BuildToken(user));
+                var response = await SendConfirmationEmailAsync(user);
+                if (response.WasSuccess)
+                {
+                    return NoContent();
+                }
             }
             return BadRequest(result.Errors.FirstOrDefault());
         }
@@ -101,7 +183,40 @@ namespace Orders.Backend.Controllers
                 var user = await _usersUnitOfWork.GetUserAsync(login.Email);
                 return Ok(BuildToken(user));
             }
+
+            if (result.IsLockedOut)
+            {
+                return BadRequest("Ha superado el máximo número de intentos permitidos, su cuenta está bloqueada, intente de nuevo en 5 minutos.");
+            }
+
+            if (result.IsNotAllowed)
+            {
+                return BadRequest("El Email no ha sido confirmado, debe seguir las instrucciones del correo enviado para habilitar el usuario.");
+            }
+
             return BadRequest("Email o contraseña incorrectos.");
+        }
+
+        [HttpPost("ChangePassword")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> ChangePasswordAsync(ChangePasswordDTO changePassword)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var user = await _usersUnitOfWork.GetUserAsync(User.Identity!.Name!);
+            if (user == null)
+            {
+                return NotFound("Usuario no encontrado.");
+            }
+            var result = await _usersUnitOfWork.ChangePasswordAsync(user, changePassword.CurrentPassword, changePassword.NewPassword);
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+            return BadRequest(result.Errors.FirstOrDefault()!.Description);
         }
 
         private TokenDTO BuildToken(User user)
@@ -132,6 +247,22 @@ namespace Orders.Backend.Controllers
                 Token = new JwtSecurityTokenHandler().WriteToken(token),
                 Expiration = expiration
             };
+        }
+
+        private async Task<ActionResponse<string>> SendConfirmationEmailAsync(User user)
+        {
+            var myToken = await _usersUnitOfWork.GenerateEmailConfirmationTokenAsync(user);
+            var tokenLink = Url.Action("ConfirmEmail", "accounts", new
+            {
+                userid = user.Id,
+                token = myToken
+            }, HttpContext.Request.Scheme, _configuration["UrlFrontend"]);
+
+            return _mailHelper.SendMail(user.FullName, user.Email!,
+                $"Orders - Confirmación de cuenta",
+                $"<h1>Orders - Confirmación de cuenta</h1>" +
+                $"<p>Para habilitar el usuario, por favor hacer clic 'Confirmar Email':</p>" +
+                $"<b><a href={tokenLink}>Confirmar Email</a></b>");
         }
     }
 }

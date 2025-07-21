@@ -6,6 +6,10 @@ namespace Orders.Backend.UnitsOfWork.Interfaces
 {
     public interface IUsersUnitOfWork
     {
+        Task<string> GeneratePasswordResetTokenAsync(User user);
+        Task<IdentityResult> ResetPasswordAsync(User user, string token, string password);
+        Task<string> GenerateEmailConfirmationTokenAsync(User user);
+        Task<IdentityResult> ConfirmEmailAsync(User user, string token);
         Task<User> GetUserAsync(string email);
         Task<User> GetUserAsync(Guid userId);
         Task<IdentityResult> ChangePasswordAsync(User user, string currentPassword, string newPassword);

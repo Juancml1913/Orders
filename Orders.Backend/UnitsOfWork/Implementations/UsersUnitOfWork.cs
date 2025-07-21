@@ -34,6 +34,21 @@ namespace Orders.Backend.UnitsOfWork.Implementations
             await _usersRepository.CheckRoleAsync(roleName);
         }
 
+        public async Task<IdentityResult> ConfirmEmailAsync(User user, string token)
+        {
+            return await _usersRepository.ConfirmEmailAsync(user, token);
+        }
+
+        public async Task<string> GenerateEmailConfirmationTokenAsync(User user)
+        {
+            return await _usersRepository.GenerateEmailConfirmationTokenAsync(user);
+        }
+
+        public async Task<string> GeneratePasswordResetTokenAsync(User user)
+        {
+            return await _usersRepository.GeneratePasswordResetTokenAsync(user);
+        }
+
         public async Task<User> GetUserAsync(string email)
         {
             return await _usersRepository.GetUserAsync(email);
@@ -57,6 +72,11 @@ namespace Orders.Backend.UnitsOfWork.Implementations
         public async Task LogoutAsync()
         {
             await _usersRepository.LogoutAsync();
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(User user, string token, string password)
+        {
+            return await _usersRepository.ResetPasswordAsync(user, token, password);
         }
 
         public async Task<IdentityResult> UpdateUserAsync(User user)

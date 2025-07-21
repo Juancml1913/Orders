@@ -15,9 +15,9 @@ namespace Orders.Backend.Helpers
         public async Task RemoveFileAsync(string path, string containerName)
         {
             var account = new Account(
-                _configuration["CloudinaryCloudName"]!.ToString(),
-                _configuration["CloudinaryApiKey"]!.ToString(),
-                _configuration["CloudinaryApiSecret"]!.ToString()
+                _configuration["Cloudinary:CloudName"]!.ToString(),
+                _configuration["Cloudinary:ApiKey"]!.ToString(),
+                _configuration["Cloudinary:ApiSecret"]!.ToString()
             );
 
             var cloudinary = new Cloudinary(account);
@@ -30,9 +30,9 @@ namespace Orders.Backend.Helpers
         public async Task<string> SaveFileAsync(byte[] content, string extention, string containerName)
         {
             var account = new Account(
-                _configuration["CloudinaryCloudName"]!.ToString(),
-                _configuration["CloudinaryApiKey"]!.ToString(),
-                _configuration["CloudinaryApiSecret"]!.ToString()
+                _configuration["Cloudinary:CloudName"]!.ToString(),
+                _configuration["Cloudinary:ApiKey"]!.ToString(),
+                _configuration["Cloudinary:ApiSecret"]!.ToString()
             );
 
             var cloudinary = new Cloudinary(account);

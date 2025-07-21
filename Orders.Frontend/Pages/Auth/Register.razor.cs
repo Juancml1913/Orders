@@ -95,7 +95,7 @@ namespace Orders.Frontend.Pages.Auth
             userDTO.UserType = UserType.User;
             loading = true;
 
-            var responseHttp = await Repository.PostAsync<UserDTO, TokenDTO>("api/accounts/createuser", userDTO);
+            var responseHttp = await Repository.PostAsync<UserDTO>("api/accounts/createuser", userDTO);
 
 
             loading = false;
@@ -105,7 +105,7 @@ namespace Orders.Frontend.Pages.Auth
                 await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
                 return;
             }
-            await LoginService.LoginAsync(responseHttp.Response!.Token);
+            await SweetAlertService.FireAsync("Confirmación", "Su cuenta ha sido creada con exito, se te ha enviado un correo electrónico con las instrucciones para verificar tu cuenta.", SweetAlertIcon.Info);
             NavigationManager.NavigateTo("/");
         }
 

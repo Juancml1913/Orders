@@ -83,6 +83,10 @@ namespace Orders.Frontend.Repositories
             return JsonSerializer.Deserialize<T>(response, _jsonDefaultOptions)!;
         }
 
-
+        public async Task<HttpResponseWrapper<object>> GetAsync(string url)
+        {
+            var responseHttp = await _httpClient.GetAsync(url);
+            return new HttpResponseWrapper<object>(null, !responseHttp.IsSuccessStatusCode, responseHttp);
+        }
     }
 }

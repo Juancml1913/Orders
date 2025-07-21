@@ -73,7 +73,7 @@ else
                                     {
                                         @foreach (var country in countries)
                                         {
-                                            <option value="@country.Id" selected="@country.Id == @user!.City!.State!.Country!.Id">@country.Name</option>
+                                            <option value="@country.Id" selected=@(country.Id == user!.City!.State!.Country!.Id)>@country.Name</option>
                                         }
                                     }
                                 </select>
@@ -88,7 +88,7 @@ else
                                     {
                                         @foreach (var state in states)
                                         {
-                                            <option value="@state.Id" selected="@state.Id == @user!.City!.State!.Id">@state.Name</option>
+                                            <option value="@state.Id" selected=@(state.Id == user!.City!.State!.Id)>@state.Name</option>
                                         }
                                     }
                                 </select>
@@ -103,7 +103,7 @@ else
                                     {
                                         @foreach (var city in cities)
                                         {
-                                            <option value="@city.Id" selected="@city.Id == @user!.City!.Id">@city.Name</option>
+                                            <option value="@city.Id" selected=@(city.Id == user!.City!.Id)>@city.Name</option>
                                         }
                                     }
                                 </select>
