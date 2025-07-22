@@ -1,3 +1,4 @@
+using Blazored.Modal.Services;
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Repositories;
@@ -17,7 +18,8 @@ namespace Orders.Frontend.Pages.Auth
         public string UserId { get; set; } = null!;
         [Parameter, SupplyParameterFromQuery]
         public string Token { get; set; } = string.Empty;
-
+        [CascadingParameter]
+        public IModalService Modal { get; set; } = default!;
         private async Task ChangePasswordAsync()
         {
             resetPasswordDTO.Token = Token;
@@ -42,7 +44,7 @@ namespace Orders.Frontend.Pages.Auth
                 Text = "Tu contraseña ha sido cambiada exitosamente.",
                 Icon = SweetAlertIcon.Info
             });
-            NavigationManager.NavigateTo("/login");
+            Modal.Show<Login>();
         }
     }
 }

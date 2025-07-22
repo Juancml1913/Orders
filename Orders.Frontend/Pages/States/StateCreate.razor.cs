@@ -1,4 +1,6 @@
-﻿using CurrieTechnologies.Razor.SweetAlert2;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -24,6 +26,8 @@ namespace Orders.Frontend.Pages.States
         [Parameter]
         public int CountryId { get; set; }
 
+        [CascadingParameter] public BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
         private async Task CreateAsync()
         {
             state.CountryId = CountryId;
@@ -34,7 +38,7 @@ namespace Orders.Frontend.Pages.States
                 await SweetAlertService.FireAsync("Error", message);
                 return;
             }
-
+            await BlazoredModal.CloseAsync(ModalResult.Ok());
             Return();
             var toast = SweetAlertService.Mixin(new SweetAlertOptions
             {

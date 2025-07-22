@@ -1,4 +1,6 @@
-﻿using CurrieTechnologies.Razor.SweetAlert2;
+﻿using Blazored.Modal;
+using Blazored.Modal.Services;
+using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Pages.Countries;
@@ -24,6 +26,9 @@ namespace Orders.Frontend.Pages.Categories
         [Inject]
         private NavigationManager NavigationManager { get; set; } = null!;
 
+        [CascadingParameter]
+        public BlazoredModalInstance BlazoredModal { get; set; } = default!;
+
         private async Task CreateAsync()
         {
             var responseHttp = await Repository.PostAsync("api/categories", category);
@@ -33,7 +38,7 @@ namespace Orders.Frontend.Pages.Categories
                 await SweetAlertService.FireAsync("Error", message);
                 return;
             }
-
+            await BlazoredModal.CloseAsync(ModalResult.Ok());
             Return();
             var toast = SweetAlertService.Mixin(new SweetAlertOptions
             {

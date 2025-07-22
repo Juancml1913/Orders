@@ -1,13 +1,14 @@
 ﻿@page "/login"
-<div class="row mt-5">
-    <div class="col-md-4 offset-md-4">
+<div class="row">
+    <div class="col-12">
         <EditForm Model="loginDTO" OnValidSubmit="SignInAsync">
             <DataAnnotationsValidator />
             <div class="card bg-light">
                 <div class="card-header justify-content-center">
                     <span>
                         <i class="bi bi-account-login"/> Iniciar Sesión
-                        <button class="btn btn-sm btn-primary float-end" type="submit"><i class="bi bi-box-arrow-right"/> Iniciar Sesión</button>
+                        <button class="btn btn-sm btn-primary float-end" @onclick="SignInAsync"><i class="bi bi-box-arrow-right"/> Iniciar Sesión</button>
+                        <button class="btn btn-sm btn-danger float-end mx-1" @onclick="CloseModalAsync" type="button"><i class="bi bi-x-circle-fill" /> Cancelar</button>
                     </span>
                 </div>
                 <div class="card-body">
@@ -23,6 +24,7 @@
                     </div>
                 </div>
                 <div class="card-footer">
+                    <a class="btn btn-link" href="/register">¿No eres un usuario aún? Registrate aquí</a>
                     <a class="btn btn-link" href="/resendtoken">Reenviar correo de activación de cuenta.</a>
                     <a class="btn btn-link" href="/recoverpassword">¿Has olvidado tu contraseña?</a>
                 </div>
