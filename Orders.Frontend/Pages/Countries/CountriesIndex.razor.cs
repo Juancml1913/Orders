@@ -22,11 +22,11 @@ namespace Orders.Frontend.Pages.Countries
         {
             await LoadAsync();
         }
-
-        private async Task CleanFilterAsync()
+        private async Task FilterCallBack(string filter)
         {
-            Filter = string.Empty;
+            Filter = filter;
             await ApplyFilterAsync();
+            StateHasChanged();
         }
 
         private async Task ApplyFilterAsync()

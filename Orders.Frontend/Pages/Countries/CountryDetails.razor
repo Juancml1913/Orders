@@ -15,13 +15,9 @@ else
             </span>
         </div>
         <div class="card-body">
+            <Filter PlaceHolder="Buscar estado/departamento..." Callback="FilterCallBack" />
             <GenericList MyList="states">
                 <Body>
-                    <div class="mb-2" style="display:flex; flex-wrap: wrap; align-items: center;">
-                        <input style="width: 400px" type="text" class="form-control" id="titulo" placeholder="Buscar estado/departamento..." @bind-value="Filter" />
-                        <button type="button" class="btn btn-outline-primary mx-1" @onclick="ApplyFilterAsync"><i class="bi bi-funnel" /> Filtrar</button>
-                        <button type="button" class="btn btn-outline-danger mx-1" @onclick="CleanFilterAsync"><i class="bi bi-x-circle" /> Limpiar</button>
-                    </div>
                     <Pagination CurrentPage="currentPage" TotalPage="totalPage" SelectedPage="SelectedPage" />
 
                     <table class="table table-striped">

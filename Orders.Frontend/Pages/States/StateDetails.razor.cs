@@ -29,7 +29,12 @@ namespace Orders.Frontend.Pages.States
         {
             await LoadAsync();
         }
-
+        private async Task FilterCallBack(string filter)
+        {
+            Filter = filter;
+            await ApplyFilterAsync();
+            StateHasChanged();
+        }
         private async Task LoadAsync(int page = 1)
         {
             if (!string.IsNullOrWhiteSpace(Page))
@@ -50,12 +55,6 @@ namespace Orders.Frontend.Pages.States
         {
             currentPage = page;
             await LoadAsync(page);
-        }
-
-        private async Task CleanFilterAsync()
-        {
-            Filter = string.Empty;
-            await ApplyFilterAsync();
         }
 
         private async Task ApplyFilterAsync()
