@@ -57,7 +57,10 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 var connectionString = builder.Configuration.GetConnectionString("LocalConnection");
-builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(connectionString));
+builder.Services.AddDbContext<DataContext>(x => x.UseSqlServer(connectionString, sqlOptions =>
+{
+    sqlOptions.CommandTimeout(300);
+}));
 builder.Services.AddTransient<SeedDb>();
 
 builder.Services.AddScoped(typeof(IGenericUnitOfWork<>), typeof(GenericUnitOfWork<>));
