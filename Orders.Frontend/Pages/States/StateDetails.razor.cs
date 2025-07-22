@@ -24,10 +24,25 @@ namespace Orders.Frontend.Pages.States
         public int StateId { get; set; }
         [Parameter, SupplyParameterFromQuery] public string Page { get; set; } = string.Empty;
         [Parameter, SupplyParameterFromQuery] public string Filter { get; set; } = string.Empty;
+        [Parameter, SupplyParameterFromQuery] public int RecordNumber { get; set; } = 10;
 
         protected override async Task OnInitializedAsync()
         {
             await LoadAsync();
+        }
+        private void ValidateRecordsNumber()
+        {
+            if (RecordNumber == 0)
+            {
+                RecordNumber = 10;
+            }
+        }
+        private async Task SelectedRecordsNumberAsync(int recordsNumber)
+        {
+            RecordNumber = recordsNumber;
+            int page = 1;
+            await LoadAsync(page);
+            await SelectedPageAsync(page);
         }
         private async Task FilterCallBack(string filter)
         {
@@ -37,6 +52,7 @@ namespace Orders.Frontend.Pages.States
         }
         private async Task LoadAsync(int page = 1)
         {
+            ValidateRecordsNumber();
             if (!string.IsNullOrWhiteSpace(Page))
             {
                 page = Convert.ToInt32(Page);
@@ -66,7 +82,7 @@ namespace Orders.Frontend.Pages.States
 
         private async Task LoadPageAsync()
         {
-            var url = $"/api/cities/totalpages?id={StateId}";
+            var url = $"/api/cities/totalpages?id={StateId}&recordsnumber={RecordNumber}";
             if (!string.IsNullOrEmpty(Filter))
             {
                 url += $"&filter={Filter}";
@@ -83,7 +99,7 @@ namespace Orders.Frontend.Pages.States
 
         private async Task<bool> LoadCitiesAsync(int page)
         {
-            var url = $"/api/cities?id={StateId}";
+            var url = $"/api/cities?id={StateId}&recordsnumber={RecordNumber}";
             if (!string.IsNullOrEmpty(Filter))
             {
                 url += $"&filter={Filter}";

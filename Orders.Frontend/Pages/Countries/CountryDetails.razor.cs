@@ -26,10 +26,25 @@ namespace Orders.Frontend.Pages.Countries
         public int CountryId { get; set; }
         [Parameter, SupplyParameterFromQuery] public string Page { get; set; } = string.Empty;
         [Parameter, SupplyParameterFromQuery] public string Filter { get; set; } = string.Empty;
+        [Parameter, SupplyParameterFromQuery] public int RecordNumber { get; set; } = 10;
 
         protected override async Task OnInitializedAsync()
         {
             await LoadAsync();
+        }
+        private void ValidateRecordsNumber()
+        {
+            if (RecordNumber == 0)
+            {
+                RecordNumber = 10;
+            }
+        }
+        private async Task SelectedRecordsNumberAsync(int recordsNumber)
+        {
+            RecordNumber = recordsNumber;
+            int page = 1;
+            await LoadAsync(page);
+            await SelectedPageAsync(page);
         }
         private async Task FilterCallBack(string filter)
         {
@@ -52,6 +67,7 @@ namespace Orders.Frontend.Pages.Countries
 
         private async Task LoadAsync(int page = 1)
         {
+            ValidateRecordsNumber();
             if (!string.IsNullOrWhiteSpace(Page))
             {
                 page = Convert.ToInt32(Page);
@@ -75,7 +91,7 @@ namespace Orders.Frontend.Pages.Countries
 
         private async Task LoadPageAsync()
         {
-            var url = $"/api/states/totalpages?id={CountryId}";
+            var url = $"/api/states/totalpages?id={CountryId}&recordsnumber={RecordNumber}";
             if (!string.IsNullOrEmpty(Filter))
             {
                 url += $"&filter={Filter}";
@@ -91,7 +107,7 @@ namespace Orders.Frontend.Pages.Countries
         }
         private async Task<bool> LoadStateAsync(int page)
         {
-            var url = $"/api/states?id={CountryId}&page={page}";
+            var url = $"/api/states?id={CountryId}&page={page}&recordsnumber={RecordNumber}";
             if (!string.IsNullOrEmpty(Filter))
             {
                 url += $"&filter={Filter}";
