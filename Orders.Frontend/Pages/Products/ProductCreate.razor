@@ -1,0 +1,12 @@
+﻿@page "/products/create"
+@if (loading)
+{
+    <Loading/>
+}
+else
+{
+    <ProductForm @ref="productForm" ProductDTO="productDTO" NonSelectedCategories="nonselectedCategories" OnValidSubmit="SaveProductAsync" ReturnAction="Return" />
+}
+
+
+

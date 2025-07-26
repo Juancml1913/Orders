@@ -1,0 +1,76 @@
+﻿<NavigationLock OnBeforeInternalNavigation="OnBeforeInternalNavigation"></NavigationLock>
+<EditForm EditContext="editContext" OnValidSubmit="OnDataAnnotationsValidatedAsync">
+    <DataAnnotationsValidator />
+    <div class="card">
+        <div class="card-header">
+            <span>
+                <i class="bi bi-box2" /> Crear Nuevo Producto
+                <a class="btn btn-sm btn-success float-end" href="/products"><i/> Regresar</a>
+                <button class="btn btn-sm btn-primary float-end mx-2" type="submit"><i class="bi bi-floppy" /> Guardar Cambios</button>
+            </span>
+        </div>
+        <div class="card-body">
+
+            <div class="row">
+                <div class="col-md-6 col-sm-12">
+                    <div class="mb-3">
+                        <label>Nombres: </label>
+                        <div>
+                            <InputText class="form-control" @bind-Value="ProductDTO.Name" />
+                            <ValidationMessage For="@(() => ProductDTO.Name)" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Descripción: </label>
+                        <div>
+                            <InputText class="form-control" @bind-Value="ProductDTO.Description" />
+                            <ValidationMessage For="@(() => ProductDTO.Description)" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Precio: </label>
+                        <div>
+                            <InputNumber class="form-control" @bind-Value="ProductDTO.Price" />
+                            <ValidationMessage For="@(() => ProductDTO.Price)" />
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Inventario: </label>
+                        <div>
+                            <InputNumber class="form-control" @bind-Value="ProductDTO.Stock" />
+                            <ValidationMessage For="@(() => ProductDTO.Stock)" />
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="col-md-6 col-sm-12">
+                    <div class="mb-3">
+                        <label>Categorías: </label>
+                        <div>
+                            <MultipleSelector NonSelected="nonSelected" Selected="selected"/>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <InputImg Label="Foto" ImageSelected="ImageSelected" ImageURL="@imageUrl"/>
+                    </div>
+                    @if (IsEditing)
+                    {
+                        <div class="mb-3">
+                            <button class="btn btn-outline-primary" type="button" @onclick="AddImageAction"><i class="bi bi-file-earmark-image" /> Agregar Imagen</button>
+                            <button class="btn btn-outline-danger" type="button" @onclick="RemoveImageAction"><i class="bi bi-x-square-fill" /> Eliminar la última Imagen</button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@if (IsEditing && ProductDTO.ProductImages is not null)
+{
+    <CarouselView Images="ProductDTO.ProductImages" />
+}
+
+
+
+

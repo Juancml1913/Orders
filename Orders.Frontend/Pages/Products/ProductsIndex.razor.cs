@@ -1,0 +1,153 @@
+using Blazored.Modal.Services;
+using CurrieTechnologies.Razor.SweetAlert2;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
+using Orders.Frontend.Repositories;
+using Orders.Shared.DTOs;
+using Orders.Shared.Entities;
+using System.Reflection.Metadata.Ecma335;
+
+namespace Orders.Frontend.Pages.Products
+{
+    [Authorize(Roles = "Admin")]
+    public partial class ProductsIndex
+    {
+        private int currentPage = 1;
+        private int totalPages;
+        [Inject] private SweetAlertService SweetAlertService { get; set; } = null!;
+        [Inject] private NavigationManager NavigationManager { get; set; } = null!;
+        [Inject] private IRepository Repository { get; set; } = null!;
+
+        public List<Product>? Products { get; set; }
+        [Parameter, SupplyParameterFromQuery] public string Page { get; set; } = string.Empty;
+        [Parameter, SupplyParameterFromQuery] public string Filter { get; set; } = string.Empty;
+        [Parameter, SupplyParameterFromQuery] public int RecordNumber { get; set; } = 10;
+
+        protected override async Task OnInitializedAsync()
+        {
+            await LoadAsync();
+        }
+        private async Task SelectedRecordsNumberAsync(int recordsNumber)
+        {
+            RecordNumber = recordsNumber;
+            int page = 1;
+            await LoadAsync(page);
+            await SelectedPageAsync(page);
+        }
+        private async Task FilterCallBack(string filter)
+        {
+            Filter = filter;
+            await ApplyFilterAsync();
+            StateHasChanged();
+        }
+
+        private async Task LoadAsync(int page = 1)
+        {
+            ValidateRecordsNumber();
+            if (!string.IsNullOrWhiteSpace(Page))
+            {
+                page = Convert.ToInt32(Page);
+            }
+            var ok = await LoadListAsync(page);
+            if (ok)
+            {
+                await LoadPagesAsync();
+            }
+        }
+        private async Task ApplyFilterAsync()
+        {
+            int page = 1;
+            await SelectedPageAsync(page);
+        }
+        private async Task SelectedPageAsync(int page)
+        {
+            currentPage = page;
+            await LoadAsync(page);
+        }
+        private void ValidateRecordsNumber()
+        {
+            if (RecordNumber == 0)
+            {
+                RecordNumber = 10;
+            }
+        }
+        private async Task<bool> LoadListAsync(int page)
+        {
+            ValidateRecordsNumber();
+            var url = $"api/products?page={page}&recordsnumber={RecordNumber}";
+            if (!string.IsNullOrWhiteSpace(Filter))
+            {
+                url += $"&filter={Filter}";
+            }
+            var responseHttp = await Repository.GetAsync<List<Product>>(url);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return false;
+            }
+
+            Products = responseHttp.Response;
+            return true;
+        }
+
+        private async Task LoadPagesAsync()
+        {
+            ValidateRecordsNumber();
+            var url = $"api/products/totalpages?recordsnumber={RecordNumber}";
+            if (!string.IsNullOrWhiteSpace(Filter))
+            {
+                url += $"&filter={Filter}";
+            }
+            var responseHttp = await Repository.GetAsync<int>(url);
+            if (responseHttp.Error)
+            {
+                var message = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                return;
+            }
+            totalPages = responseHttp.Response;
+        }
+        private async Task DeleteAsync(Product product)
+        {
+            var result = await SweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = $"¿Estás seguro de borrar el producto: {product.Name}?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true,
+            });
+
+            var confirm = string.IsNullOrEmpty(result.Value);
+            if (confirm)
+            {
+                return;
+            }
+
+            var responseHttp = await Repository.DeleteAsync<Product>($"api/products/{product.Id}");
+            if (responseHttp.Error)
+            {
+                if (responseHttp.HttpResponseMessage.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    NavigationManager.NavigateTo("/products");
+                }
+                else
+                {
+                    var message = await responseHttp.GetErrorMessageAsync();
+                    await SweetAlertService.FireAsync("Error", message, SweetAlertIcon.Error);
+                }
+                return;
+            }
+
+            await LoadAsync();
+            var toast = SweetAlertService.Mixin(new SweetAlertOptions
+            {
+                Toast = true,
+                Position = SweetAlertPosition.BottomEnd,
+                ShowConfirmButton = true,
+                Timer = 3000,
+            });
+            await toast.FireAsync(icon: SweetAlertIcon.Success, message: "Registro eliminado con éxito.");
+        }
+    }
+}
