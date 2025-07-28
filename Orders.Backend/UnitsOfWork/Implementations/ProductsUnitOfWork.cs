@@ -14,7 +14,10 @@ namespace Orders.Backend.UnitsOfWork.Implementations
         {
             _productsRepository=productsRepository;
         }
-
+        public async override Task<ActionResponse<Product>> DeleteAsync(int id)
+        {
+            return await _productsRepository.DeleteAsync(id);
+        }
         public async Task<ActionResponse<Product>> AddFullAsync(ProductDTO productDTO)
         {
             return await _productsRepository.AddFullAsync(productDTO);

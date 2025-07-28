@@ -19,6 +19,45 @@ namespace Orders.Backend.Repositories.Implementations
             _fileStorage=fileStorage;
         }
 
+        public override async Task<ActionResponse<Product>> DeleteAsync(int id)
+        {
+            var product = await _context.Products
+                .Include(p => p.ProductCategories)
+                .Include(p => p.ProductImages)
+                .FirstOrDefaultAsync(p => p.Id == id);
+            if (product is null)
+            {
+                return new ActionResponse<Product>
+                {
+                    WasSuccess = false,
+                    Message = "Producto no encontrado."
+                };
+            }
+            foreach (var productImage in product.ProductImages!)
+            {
+                await _fileStorage.RemoveFileAsync(productImage.Image, "products");
+            }
+            try
+            {
+                _context.ProductCategories.RemoveRange(product.ProductCategories!);
+                _context.ProductImages.RemoveRange(product.ProductImages!);
+                _context.Products.Remove(product);
+                await _context.SaveChangesAsync();
+                return new ActionResponse<Product>
+                {
+                    WasSuccess = true
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ActionResponse<Product>
+                {
+                    WasSuccess = false,
+                    Message = ex.Message
+                };
+            }
+        }
+
         public async Task<ActionResponse<Product>> AddFullAsync(ProductDTO productDTO)
         {
             try
