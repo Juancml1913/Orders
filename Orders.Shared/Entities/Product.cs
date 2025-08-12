@@ -48,5 +48,7 @@ namespace Orders.Shared.Entities
 
         [Display(Name = "Imagen")]
         public string MainImage => ProductImages == null ? string.Empty : ProductImages.FirstOrDefault()!.Image;
+
+        public ICollection<TemporalOrder>? TemporalOrders { get; set; }
     }
 }

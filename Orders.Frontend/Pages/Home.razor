@@ -6,7 +6,18 @@
 }
 else
 {
-    <Filter PlaceHolder="Buscar producto..." TextToFilter="@Filter" Callback="FilterCallBack" />
+    <div class="d-flex align-items-center justify-content-between">
+        <Filter PlaceHolder="Buscar producto..." TextToFilter="@Filter" Callback="FilterCallBack" />
+        <AuthorizeView>
+            <Authorized>
+                @if (counter > 0)
+                {
+                    <a href="/cart/showcart" class="btn btn-primary"><i class="bi bi-card-fill"/> Ver carrito de compras (@counter)</a>
+                }
+            </Authorized>
+        </AuthorizeView>
+    </div>
+    
     <Pagination IsHome="true" CurrentPage="currentPage" TotalPage="totalPages" SelectedPage="SelectedPageAsync" RecordsNumber="SelectedRecordsNumberAsync" />
     <div class="row row-cols-1 row-cols-md-4 g-4 mt-1">
         @foreach (var product in Products!)
