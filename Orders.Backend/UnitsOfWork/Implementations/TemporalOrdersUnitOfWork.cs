@@ -29,5 +29,14 @@ namespace Orders.Backend.UnitsOfWork.Implementations
         {
             return await _temporalOrdersRepository.GetCountAsync(email);
         }
+
+        public async Task<ActionResponse<TemporalOrder>> PutFullAsync(TemporalOrderDTO temporalOrderDTO)
+        {
+            return await _temporalOrdersRepository.PutFullAsync(temporalOrderDTO);
+        }
+        public override async Task<ActionResponse<TemporalOrder>> GetAsync(int id)
+        {
+            return await _temporalOrdersRepository.GetAsync(id);
+        }
     }
 }

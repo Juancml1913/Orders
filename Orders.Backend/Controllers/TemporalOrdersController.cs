@@ -54,5 +54,28 @@ namespace Orders.Backend.Controllers
             }
             return BadRequest(result.Message);
         }
+
+        [HttpGet("{id}")]
+        public override async Task<IActionResult> GetAsync(int id)
+        {
+            var response = await _temporalOrdersUnitOfWork.GetAsync(id);
+            if (response.WasSuccess)
+            {
+                return Ok(response.Result);
+            }
+            return NotFound(response.Message);
+        }
+
+        [HttpPut("full")]
+        public async Task<IActionResult> PutFullAsync(TemporalOrderDTO temporalOrderDTO)
+        {
+            var action = await _temporalOrdersUnitOfWork.PutFullAsync(temporalOrderDTO);
+            if (action.WasSuccess)
+            {
+                return Ok(action.Result);
+            }
+            return NotFound(action.Message);
+        }
+
     }
 }

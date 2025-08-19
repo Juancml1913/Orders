@@ -221,6 +221,62 @@ namespace Orders.Backend.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("Orders.Shared.Entities.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Orders");
+                });
+
+            modelBuilder.Entity("Orders.Shared.Entities.OrderDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Quantity")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("OrderDetails");
+                });
+
             modelBuilder.Entity("Orders.Shared.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -509,6 +565,33 @@ namespace Orders.Backend.Migrations
                     b.Navigation("State");
                 });
 
+            modelBuilder.Entity("Orders.Shared.Entities.Order", b =>
+                {
+                    b.HasOne("Orders.Shared.Entities.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Orders.Shared.Entities.OrderDetail", b =>
+                {
+                    b.HasOne("Orders.Shared.Entities.Order", "Order")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Orders.Shared.Entities.Product", "Product")
+                        .WithMany("OrderDetails")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Orders.Shared.Entities.ProductCategory", b =>
                 {
                     b.HasOne("Orders.Shared.Entities.Category", "Category")
@@ -593,8 +676,15 @@ namespace Orders.Backend.Migrations
                     b.Navigation("States");
                 });
 
+            modelBuilder.Entity("Orders.Shared.Entities.Order", b =>
+                {
+                    b.Navigation("OrderDetails");
+                });
+
             modelBuilder.Entity("Orders.Shared.Entities.Product", b =>
                 {
+                    b.Navigation("OrderDetails");
+
                     b.Navigation("ProductCategories");
 
                     b.Navigation("ProductImages");
@@ -609,6 +699,8 @@ namespace Orders.Backend.Migrations
 
             modelBuilder.Entity("Orders.Shared.Entities.User", b =>
                 {
+                    b.Navigation("Orders");
+
                     b.Navigation("TemporalOrders");
                 });
 #pragma warning restore 612, 618
