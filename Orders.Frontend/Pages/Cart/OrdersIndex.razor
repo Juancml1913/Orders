@@ -1,0 +1,56 @@
+﻿@page "/orders"
+
+@if (Orders is null)
+{
+    <Loading/>
+}
+
+<GenericList MyList="Orders">
+    <Body>
+        <div class="card">
+            <div class="card-header">
+                <span>
+                    <i class="bi bi-currency-dollar"/> Pedidos
+                </span>
+            </div>
+            <div class="card-body">
+                <Pagination CurrentPage="currentPage" TotalPage="totalPages" SelectedPage="SelectedPageAsync" RecordsNumber="SelectedRecordsNumberAsync" />
+
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Usuario</th>
+                            <th>Comentario</th>
+                            <th>Estado</th>
+                            <th>Líneas</th>
+                            <th>Cantidad</th>
+                            <th>Valor</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Orders!)
+                        {
+                            <tr>
+                                <td>@($"{order.Date:yyyy/MM/dd hh:mm tt}")</td>
+                                <td>@order.User!.FullName</td>
+                                <td>@order.Remarks</td>
+                                <td>@EnumHelper.GetEnumDescription(order.OrderStatus)</td>
+                                <td>@order.Lines</td>
+                                <td>@($"{order.Quantity:N2}")</td>
+                                <td>@($"{order.Value:C2}")</td>
+                                <td><a href="/cart/orderdetails/@order.Id" class="btn btn-info btn-sm"><i class="bi bi-info-circle"/> Detalles</a></td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+    </Body>
+</GenericList>
+
+
+
