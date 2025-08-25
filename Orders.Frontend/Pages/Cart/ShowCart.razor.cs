@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Orders.Frontend.Repositories;
 using Orders.Shared.DTOs;
 using Orders.Shared.Entities;
+using System.Threading.Tasks;
 
 namespace Orders.Frontend.Pages.Cart
 {
@@ -39,9 +40,28 @@ namespace Orders.Frontend.Pages.Cart
             }
         }
 
-        private void ConfirmOrderAsync()
+        private async Task ConfirmOrderAsync()
         {
-            //TODO: Pending to implement
+            var result = await SweetAlertService.FireAsync(new SweetAlertOptions
+            {
+                Title = "Confirmación",
+                Text = "¿Esta seguro que quieres confirmar el pedido?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+            var confirm = string.IsNullOrEmpty(result.Value);
+            if (confirm)
+            {
+                return;
+            }
+            var responseHttp = await Repository.PostAsync("api/orders", OrderDTO);
+            if (responseHttp.Error)
+            {
+                var messageError = await responseHttp.GetErrorMessageAsync();
+                await SweetAlertService.FireAsync("Error", messageError, SweetAlertIcon.Error);
+                return;
+            }
+            NavigationManager.NavigateTo("/cart/orderconfirmed");
         }
 
         private async Task Delete(int temporalOrderId)
