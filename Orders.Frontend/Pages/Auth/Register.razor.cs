@@ -1,8 +1,6 @@
 using CurrieTechnologies.Razor.SweetAlert2;
 using Microsoft.AspNetCore.Components;
-using Microsoft.VisualBasic;
 using Orders.Frontend.Repositories;
-using Orders.Frontend.Services;
 using Orders.Shared.DTOs;
 using Orders.Shared.Entities;
 using Orders.Shared.Enums;
@@ -20,7 +18,7 @@ namespace Orders.Frontend.Pages.Auth
         [Inject] private NavigationManager NavigationManager { get; set; } = null!;
         [Inject] private IRepository Repository { get; set; } = null!;
         [Inject] private SweetAlertService SweetAlertService { get; set; } = null!;
-        [Inject] private ILoginService LoginService { get; set; } = null!;
+        [Parameter, SupplyParameterFromQuery] public bool IsAdmin { get; set; }
 
         protected async override Task OnInitializedAsync()
         {
@@ -93,6 +91,10 @@ namespace Orders.Frontend.Pages.Auth
         {
             userDTO.UserName = userDTO.Email;
             userDTO.UserType = UserType.User;
+            if (IsAdmin)
+            {
+                userDTO.UserType = UserType.Admin;
+            }
             loading = true;
 
             var responseHttp = await Repository.PostAsync<UserDTO>("api/accounts/createuser", userDTO);
