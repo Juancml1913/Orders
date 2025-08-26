@@ -133,7 +133,7 @@ namespace Orders.Backend.Repositories.Implementations
                 };
             }
             var order = await _context.Orders
-                .Include(o => o.OrderStatus)
+                .Include(o => o.OrderDetails)
                 .FirstOrDefaultAsync(s => s.Id == orderDTO.Id);
             if (order is null)
             {
