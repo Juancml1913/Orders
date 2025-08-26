@@ -15,16 +15,25 @@ else
                         @if (order.OrderStatus == OrderStatus.New)
                         {
                             <button class="btn btn-sm btn-danger float-end mx-2" @onclick=@(()=>CancelOrderAsync())>Cancelar</button>
-                            <button class="btn btn-sm btn-primary float-end mx-2" @onclick=@(() =>  DispathOrderAsync())>Despachar</button>
+                            <AuthorizeView role="Admin">
+                                <Authorized>
+                                    <button class="btn btn-sm btn-primary float-end mx-2" @onclick=@(() => DispathOrderAsync())>Despachar</button>
+                                </Authorized>                                
+                            </AuthorizeView>
+                            
                         }
-                        else if (order.OrderStatus == OrderStatus.Dispatched)
-                        {
-                            <button class="btn btn-sm btn-warning float-end mx-2" @onclick=@(() => SendOrderAsync())>Enviar</button>
-                        }
-                        else if (order.OrderStatus == OrderStatus.Sent)
-                        {
-                            <button class="btn btn-sm btn-success float-end mx-2" @onclick=@(() => ConfirmOrderAsync())>Confirmar</button>
-                        }
+                        <AuthorizeView role="Admin">
+                            <Authorized>
+                                @if (order.OrderStatus == OrderStatus.Dispatched)
+                                {
+                                    <button class="btn btn-sm btn-warning float-end mx-2" @onclick=@(() => SendOrderAsync())>Enviar</button>
+                                }
+                                @if (order.OrderStatus == OrderStatus.Sent)
+                                {
+                                    <button class="btn btn-sm btn-success float-end mx-2" @onclick=@(() => ConfirmOrderAsync())>Confirmar</button>
+                                }
+                            </Authorized>
+                        </AuthorizeView>
                         <a class="btn btn-sm btn-success float-end" href="/orders"><i class="bi bi-arrow-left" /> Regresar</a>
                     </span>
                 </div>

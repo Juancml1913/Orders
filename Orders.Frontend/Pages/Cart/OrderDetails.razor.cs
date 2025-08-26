@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Orders.Frontend.Pages.Cart
 {
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin, User")]
     public partial class OrderDetails
     {
         private Order? order;
