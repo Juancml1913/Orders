@@ -181,6 +181,10 @@ namespace Orders.Backend.Repositories.Implementations
             {
                 queryable = queryable.Where(p => p.Name.ToLower().Contains(pagination.Filter.ToLower()));
             }
+            if (!string.IsNullOrWhiteSpace(pagination.CategoryFilter))
+            {
+                queryable = queryable.Where(p => p.ProductCategories!.Any(c => c.Category!.Name == pagination.CategoryFilter.ToLower()));
+            }
             return new ActionResponse<IEnumerable<Product>>
             {
                 WasSuccess = true,
@@ -197,6 +201,10 @@ namespace Orders.Backend.Repositories.Implementations
             if (!string.IsNullOrWhiteSpace(pagination.Filter))
             {
                 queryable = queryable.Where(p => p.Name.ToLower().Contains(pagination.Filter.ToLower()));
+            }
+            if (!string.IsNullOrWhiteSpace(pagination.CategoryFilter))
+            {
+                queryable = queryable.Where(p => p.ProductCategories!.Any(c => c.Category!.Name == pagination.CategoryFilter.ToLower()));
             }
             double count = await queryable.CountAsync();
             int totalPages = (int)Math.Ceiling(count / pagination.RecordsNumber);
